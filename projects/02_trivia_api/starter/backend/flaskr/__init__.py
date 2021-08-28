@@ -11,21 +11,67 @@ QUESTIONS_PER_PAGE = 10
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
-  setup_db(app)
   
-  '''
-  @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-  '''
+  # Cross Origin Resource Sharing configuration
+  cors=CORS(app, resources={r"/": {"origins": "*"}})
+  setup_db(app)
+ 
+  # Using after_request decorator to set Access-Control-Allow  
+  @app.after_request
+  def after_request(response):
+        response.headers.add('Access-Control-Allow-Headers','Content-Type,Authorization,true')
+        response.headers.add('Access-Control-Allow-Methods','GET,PATCH,POST,DELETE,OPTIONS')
+        return response
 
-  '''
-  @TODO: Use the after_request decorator to set Access-Control-Allow
-  '''
 
-  '''
-  @TODO: 
-  Create an endpoint to handle GET requests 
-  for all available categories.
-  '''
+
+  def retrieve_categories():
+    # Get categories and put into a dictionary
+    return {question.id:question.type for question in Category.query.all() }
+  
+  def paginate_questions(request, selection):
+    # Pagination
+    page = request.args.get('page', 1, type=int)
+    start = (page-1) * QUESTIONS_PER_PAGE 
+    end = start + QUESTIONS_PER_PAGE 
+    
+    questions = [question.format() for question in selection] 
+    current_questions = questions[start:end] 
+    return current_questions
+  
+  # Endpoint to handle GET requests for all available categories
+  @app.route('/categories', methods=['GET']) 
+  def get_categories():
+    return jsonify({
+      'success' : True,
+      'categories' : retrieve_categories() 
+    })
+        
+  
+  # Endpoint to handle GET requests for questions      
+  @app.route('/questions', methods=['GET'])
+  def get_questions():
+    #Grab all questions ordering by ID
+    selection = Question.query.order_by(Question.id).all()
+    
+    # paginate questions
+    current_questions = paginate_questions(request, selection)
+   
+    # HTTP 404 response if no questions  
+    if len(current_questions) == 0:
+          abort(404)
+          
+    return jsonify({
+      'success' : True,
+      'questions' : current_questions, 
+      'total_questions' : len(selection),
+      'current_category' : None,
+      'categories' : retrieve_categories() 
+    })
+  
+     
+        
+  
 
 
   '''
