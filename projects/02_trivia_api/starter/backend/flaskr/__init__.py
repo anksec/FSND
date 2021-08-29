@@ -68,54 +68,81 @@ def create_app(test_config=None):
       'current_category' : None,
       'categories' : retrieve_categories() 
     })
+ 
+  # Endpoint to DELETE question using question ID 
+  @app.route('/questions/<int:id>', methods=['DELETE'])     
+  def delete_question(id):
+    try:
+      question = Question.query.filter(Question.id == id).one_or_none()
+          
+      if question is None:
+        abort(404)
+          
+      question.delete()
+          
+      selection = Question.query.order_by(Question.id).all()
+      current_questions = paginate_questions(request, selection)
+         
+    except:
+      abort(422)
+    
+    return jsonify({
+      'success' : True,
+      'questions' : current_questions, 
+      'total_questions' : len(selection),
+      'current_category' : None,
+      'categories' : retrieve_categories() 
+    }) 
   
-     
+ # POST Endpoint - Used to Endpoint to add a new trivia question or to search for a question
+  @app.route('/questions', methods=["POST"])      
+  def post_endpoint():
+    body = request.get_json()
+   
+    # Check to see if searchTerm is in the body, this is based on ./frontend/src/components/QuestionView.js
+    if (body.get('searchTerm')):
+      try:
+        # Grab the string to search for
+        phrase = body.get('searchTerm')
         
-  
+        # Search for questions that mach the search string and order by id #
+        selection = Question.query.filter(Question.question.ilike(f'%{phrase}%')).order_by(Question.id).all()
+   
+      except:
+        abort(422) 
+    else:
+      # Populate the variables for each of the question fields
+      new_question = body.get('question')    
+      new_answer = body.get('answer')
+      new_difficulty = body.get('difficulty')
+      new_category = body.get('category')
+
+      # Validate that all the fields were filled out
+      if any(q == None for q in [new_question, new_answer, new_difficulty, new_category]):
+        abort(422)
+      
+      try:
+        # Create new question and add into database using insert
+        question = Question(question=new_question, answer=new_answer, 
+                          difficulty=new_difficulty, category=new_category)
+        question.insert()
+        selection = Question.query.order_by(Question.id).all()
+    
+      except:
+        abort(422)
+    
+    # Whether we added or searched,  paginate the questions before returning them
+    current_questions = paginate_questions(request, selection)
+      
+    return jsonify({
+      'success' : True,
+      'questions' : current_questions, 
+      'total_questions' : len(selection),
+      'current_category' : None,
+      'categories' : retrieve_categories() 
+    }) 
 
 
-  '''
-  @TODO: 
-  Create an endpoint to handle GET requests for questions, 
-  including pagination (every 10 questions). 
-  This endpoint should return a list of questions, 
-  number of total questions, current category, categories. 
-
-  TEST: At this point, when you start the application
-  you should see questions and categories generated,
-  ten questions per page and pagination at the bottom of the screen for three pages.
-  Clicking on the page numbers should update the questions. 
-  '''
-
-  '''
-  @TODO: 
-  Create an endpoint to DELETE question using a question ID. 
-
-  TEST: When you click the trash icon next to a question, the question will be removed.
-  This removal will persist in the database and when you refresh the page. 
-  '''
-
-  '''
-  @TODO: 
-  Create an endpoint to POST a new question, 
-  which will require the question and answer text, 
-  category, and difficulty score.
-
-  TEST: When you submit a question on the "Add" tab, 
-  the form will clear and the question will appear at the end of the last page
-  of the questions list in the "List" tab.  
-  '''
-
-  '''
-  @TODO: 
-  Create a POST endpoint to get questions based on a search term. 
-  It should return any questions for whom the search term 
-  is a substring of the question. 
-
-  TEST: Search by any phrase. The questions list will update to include 
-  only question that include that string within their question. 
-  Try using the word "title" to start. 
-  '''
 
   '''
   @TODO: 
