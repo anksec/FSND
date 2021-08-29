@@ -14,23 +14,22 @@ def create_app(test_config=None):
   
   # Cross Origin Resource Sharing configuration
   cors=CORS(app, resources={r"/": {"origins": "*"}})
+  
   setup_db(app)
  
   # Using after_request decorator to set Access-Control-Allow  
   @app.after_request
   def after_request(response):
-        response.headers.add('Access-Control-Allow-Headers','Content-Type,Authorization,true')
-        response.headers.add('Access-Control-Allow-Methods','GET,PATCH,POST,DELETE,OPTIONS')
-        return response
+    response.headers.add('Access-Control-Allow-Headers','Content-Type,Authorization,true')
+    response.headers.add('Access-Control-Allow-Methods','GET,PATCH,POST,DELETE,OPTIONS')
+    return response
 
-
-
+  # Get categories and put into a dictionary
   def retrieve_categories():
-    # Get categories and put into a dictionary
     return {question.id:question.type for question in Category.query.all() }
   
+  # take in list of questions and paginate them 
   def paginate_questions(request, selection):
-    # Pagination
     page = request.args.get('page', 1, type=int)
     start = (page-1) * QUESTIONS_PER_PAGE 
     end = start + QUESTIONS_PER_PAGE 
@@ -70,10 +69,10 @@ def create_app(test_config=None):
     })
  
   # Endpoint to DELETE question using question ID 
-  @app.route('/questions/<int:id>', methods=['DELETE'])     
-  def delete_question(id):
+  @app.route('/questions/<int:question_id>', methods=['DELETE'])     
+  def delete_question(question_id):
     try:
-      question = Question.query.filter(Question.id == id).one_or_none()
+      question = Question.query.filter(Question.id == question_id).one_or_none()
           
       if question is None:
         abort(404)
@@ -94,8 +93,8 @@ def create_app(test_config=None):
       'categories' : retrieve_categories() 
     }) 
   
- # POST Endpoint - Used to Endpoint to add a new trivia question or to search for a question
-  @app.route('/questions', methods=["POST"])      
+  # POST Endpoint - Used to Endpoint to add a new trivia question or to search for a question
+  @app.route('/questions', methods=['POST'])      
   def post_endpoint():
     body = request.get_json()
    
@@ -142,36 +141,79 @@ def create_app(test_config=None):
       'categories' : retrieve_categories() 
     }) 
 
+  # GET endpoint to get questions based on category
+  @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+  def get_category(category_id):
+    selection = Question.query.filter(Question.category == int(category_id)).order_by(Question.id).all()
+    
+    current_questions = paginate_questions(request, selection)
+    
+    return jsonify({
+      'success' : True,
+      'questions' : current_questions, 
+      'total_questions' : len(selection),
+      'current_category' : category_id, 
+    }) 
+    
+  # POST endpoint to get questions to play quiz
+  @app.route('/quizzes', methods=['POST'])
+  def play_quiz():
+    body = request.get_json()
+    category_id = body.get('quiz_category')['id']
+    
+    # List of questions that have already been asked of the user for the session
+    previous_questions = body.get('previous_questions')
+   
+    # All categories is a category_id of 0
+    if category_id == 0:
+      selection = Question.query.all()
+    else:
+      selection = Question.query.filter(Question.category == category_id).all()
 
+    # Create a list of all questions that haven't been asked before
+    valid_questions = []
+    for question in selection:
+      if question.id not in previous_questions:
+        valid_questions.append(question)
+        
+    # if all trivia questions in the category have been asked, don't return any questions
+    if len(valid_questions) == 0:
+      return jsonify({
+        'success' : False
+      })
+    else:
+      return jsonify({
+      'success' : True,
+      'question' : random.choice(valid_questions).format(), 
+      'total_questions' : 1, 
+      'current_category' : category_id,
+    })
+      
 
-  '''
-  @TODO: 
-  Create a GET endpoint to get questions based on category. 
+  # Error handlers for 400, 404, 405 & 422
+  # Based on Section 3, Lesson 3 - Flask Error Handling 
+  @app.errorhandler(404)    
+  def not_found(error):
+    return {
+      jsonify({"success": False, "error": 404, "message": "resource not found"}),
+            404,
+    }
+  @app.errorhandler(422)
+    def unprocessable(error):
+        return (
+            jsonify({"success": False, "error": 422, "message": "unprocessable"}),
+            422,
+        )
 
-  TEST: In the "List" tab / main screen, clicking on one of the 
-  categories in the left column will cause only questions of that 
-  category to be shown. 
-  '''
-
-
-  '''
-  @TODO: 
-  Create a POST endpoint to get questions to play the quiz. 
-  This endpoint should take category and previous question parameters 
-  and return a random questions within the given category, 
-  if provided, and that is not one of the previous questions. 
-
-  TEST: In the "Play" tab, after a user selects "All" or a category,
-  one question at a time is displayed, the user is allowed to answer
-  and shown whether they were correct or not. 
-  '''
-
-  '''
-  @TODO: 
-  Create error handlers for all expected errors 
-  including 404 and 422. 
-  '''
+  @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({"success": False, "error": 400, "message": "bad request"}), 400
+      
+  @app.errorhandler(405)
+    def not_found(error):
+        return (
+            jsonify({"success": False, "error": 405, "message": "method not allowed"}),
+            405,
+        )
   
   return app
-
-    
