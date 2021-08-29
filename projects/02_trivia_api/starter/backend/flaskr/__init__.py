@@ -76,7 +76,7 @@ def create_app(test_config=None):
       question = Question.query.filter(Question.id == question_id).one_or_none()
           
       if question is None:
-        abort(404)
+        abort(422)
           
       question.delete()
           
@@ -103,6 +103,8 @@ def create_app(test_config=None):
         
         # Search for questions that mach the search string and order by id #
         selection = Question.query.filter(Question.question.ilike(f'%{phrase}%')).order_by(Question.id).all()
+        if len(selection) == 0:
+          abort(422)
         current_questions = paginate_questions(request, selection)
    
       except:
