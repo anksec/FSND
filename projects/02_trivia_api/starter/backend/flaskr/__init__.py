@@ -6,6 +6,7 @@ import random
 
 from models import setup_db, Question, Category
 
+# Used for pagination to determine the number of questions per page
 QUESTIONS_PER_PAGE = 10
 
 def create_app(test_config=None):
@@ -26,7 +27,7 @@ def create_app(test_config=None):
 
   # Get categories and put into a dictionary
   def retrieve_categories():
-    return {question.id:question.type for question in Category.query.all() }
+    return {category.id:category.type for category in Category.query.all() }
   
   # take in list of questions and paginate them 
   def paginate_questions(request, selection):
@@ -64,7 +65,7 @@ def create_app(test_config=None):
       'success' : True,
       'questions' : current_questions, 
       'total_questions' : len(selection),
-      'current_category' : None,
+      'current_category' : 'ALL',
       'categories' : retrieve_categories() 
     })
  
@@ -87,11 +88,7 @@ def create_app(test_config=None):
     
     return jsonify({
       'success' : True,
-      'questions' : current_questions, 
-      'total_questions' : len(selection),
-      'current_category' : None,
-      'categories' : retrieve_categories() 
-    }) 
+    }), 200
   
   # POST Endpoint - Used to Endpoint to add a new trivia question or to search for a question
   @app.route('/questions', methods=['POST'])      
@@ -106,9 +103,18 @@ def create_app(test_config=None):
         
         # Search for questions that mach the search string and order by id #
         selection = Question.query.filter(Question.question.ilike(f'%{phrase}%')).order_by(Question.id).all()
+        current_questions = paginate_questions(request, selection)
    
       except:
         abort(422) 
+      
+      return jsonify({
+        'success' : True,
+        'questions' : current_questions, 
+        'total_questions' : len(selection),
+        'current_category' : 'ALL',
+      })  
+      
     else:
       # Populate the variables for each of the question fields
       new_question = body.get('question')    
@@ -125,22 +131,14 @@ def create_app(test_config=None):
         question = Question(question=new_question, answer=new_answer, 
                           difficulty=new_difficulty, category=new_category)
         question.insert()
-        selection = Question.query.order_by(Question.id).all()
     
       except:
         abort(422)
+        
+      return jsonify({
+        'success' : True,
+      }), 200
     
-    # Whether we added or searched,  paginate the questions before returning them
-    current_questions = paginate_questions(request, selection)
-      
-    return jsonify({
-      'success' : True,
-      'questions' : current_questions, 
-      'total_questions' : len(selection),
-      'current_category' : None,
-      'categories' : retrieve_categories() 
-    }) 
-
   # GET endpoint to get questions based on category
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_category(category_id):
@@ -148,11 +146,14 @@ def create_app(test_config=None):
     
     current_questions = paginate_questions(request, selection)
     
+    # Get name of current category based on the ID
+    current_category = retrieve_categories()[category_id]
+    
     return jsonify({
       'success' : True,
       'questions' : current_questions, 
       'total_questions' : len(selection),
-      'current_category' : category_id, 
+      'current_category' : current_category, 
     }) 
     
   # POST endpoint to get questions to play quiz
@@ -185,8 +186,6 @@ def create_app(test_config=None):
       return jsonify({
       'success' : True,
       'question' : random.choice(valid_questions).format(), 
-      'total_questions' : 1, 
-      'current_category' : category_id,
     })
       
 
@@ -194,26 +193,21 @@ def create_app(test_config=None):
   # Based on Section 3, Lesson 3 - Flask Error Handling 
   @app.errorhandler(404)    
   def not_found(error):
-    return {
+    return (
       jsonify({"success": False, "error": 404, "message": "resource not found"}),
-            404,
-    }
+      404,
+    )
+    
   @app.errorhandler(422)
-    def unprocessable(error):
-        return (
-            jsonify({"success": False, "error": 422, "message": "unprocessable"}),
-            422,
-        )
+  def unprocessable(error):
+    return (
+      jsonify({"success": False, "error": 422, "message": "unprocessable"}),
+      422,
+    )
 
   @app.errorhandler(400)
-    def bad_request(error):
-        return jsonify({"success": False, "error": 400, "message": "bad request"}), 400
+  def bad_request(error):
+    return jsonify({"success": False, "error": 400, "message": "bad request"}), 400
       
-  @app.errorhandler(405)
-    def not_found(error):
-        return (
-            jsonify({"success": False, "error": 405, "message": "method not allowed"}),
-            405,
-        )
-  
+    
   return app
