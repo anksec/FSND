@@ -68,8 +68,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["current_category"])
         print("\nPassed GET questions from category test")
   
-    # Comment out as it will only work once unless database is refreshed
-    ''' 
+    # Comment out if testing multiple times as it will only work once unless database is refreshed
     def test_delete_question(self):
         response = self.client().delete("/questions/9")
         data = json.loads(response.data)
@@ -80,7 +79,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(question, None)
         
         print("\nPassed DELETE question test")
-    '''
       
     def test_get_quiz_question(self):
         response = self.client().post("/quizzes", json={'previous_questions': [], 
@@ -92,9 +90,8 @@ class TriviaTestCase(unittest.TestCase):
         
         print("\nPassed retrieve quiz question based on category")
  
-    # Comment out to avoid adding same question
+    # Comment out to avoid adding same question if testing multiple times
     # During test, id was 24
-    ''' 
     def test_adding_question(self):
         response = self.client().post("/questions", json={'question': 'What is 1+1?', 
                                                           'answer': '3',
@@ -105,7 +102,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["success"], True)
         print("\nPassed add quiz question")
-    '''     
     
     def test_searching_question(self):
         response = self.client().post("/questions", json={ 'searchTerm': 'What is 1+1?' })
