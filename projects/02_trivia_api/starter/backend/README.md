@@ -91,14 +91,14 @@ GET '/questions?page=${integer}'
             'category': 2
         },
     ],
-    'totalQuestions': 100,
+    'total_questions': 100,
     'categories': { '1' : "Science",
     '2' : "Art",
     '3' : "Geography",
     '4' : "History",
     '5' : "Entertainment",
     '6' : "Sports" },
-    'currentCategory': 'History'
+    'current_category': 'History'
 }
 ```
 
@@ -117,8 +117,8 @@ GET '/categories/${id}/questions'
             'category': 4
         },
     ],
-    'totalQuestions': 100,
-    'currentCategory': 'History'
+    'total_questions': 100,
+    'current_category': 'History'
 }
 ```
 
@@ -178,8 +178,8 @@ POST '/questions'
             'category': 5
         },
     ],
-    'totalQuestions': 100,
-    'currentCategory': 'Entertainment'
+    'total_questions': 100,
+    'current_category': 'Entertainment'
 }
 ```
 
