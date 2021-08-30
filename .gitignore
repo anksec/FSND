@@ -2,6 +2,7 @@
 __pycache__
 venv
 env.sh
+node_modules/
 
 # OS generated files #
 ######################
