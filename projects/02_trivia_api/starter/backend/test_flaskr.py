@@ -6,6 +6,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flaskr import create_app
 from models import setup_db, Question, Category
 
+DB_HOST = os.getenv('DB_HOST')  
+DB_USER = os.getenv('DB_USER')  
+DB_PASSWORD = os.getenv('DB_PASSWORD')  
+DB_NAME = os.getenv('TEST_DB_NAME')  
+DB_PATH = 'postgres://{}:{}@{}/{}'.format(DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
+#DB_PATH = 'postgres://{}/{}'.format(DB_HOST, DB_NAME)
 
 class TriviaTestCase(unittest.TestCase):
     """This class represents the trivia test case"""
@@ -14,8 +20,7 @@ class TriviaTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app()
         self.client = self.app.test_client
-        self.database_name = "trivia_test"
-        self.database_path = "postgres://{}/{}".format('localhost:5432', self.database_name)
+        self.database_path = DB_PATH 
         setup_db(self.app, self.database_path)
 
         # binds the app to the current context
@@ -69,6 +74,10 @@ class TriviaTestCase(unittest.TestCase):
         print("\nPassed GET questions from category test")
   
     # Comment out if testing multiple times as it will only work once unless database is refreshed
+    # to refresh database 
+    #   dropdb trivia_test
+    #   createdb trivia_test
+    #   psql trivia_test < trivia.psq
     def test_delete_question(self):
         response = self.client().delete("/questions/9")
         data = json.loads(response.data)
