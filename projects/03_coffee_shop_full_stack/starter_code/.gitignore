@@ -2,6 +2,7 @@ venv/
 .vscode/
 __pycache__/
 test.db
+udacity-fsnd-udaspicelatte.postman_collection.json
 
 # OS generated files #
 ######################
