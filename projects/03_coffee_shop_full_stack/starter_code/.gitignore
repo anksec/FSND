@@ -2,9 +2,8 @@ venv/
 .vscode/
 __pycache__/
 test.db
-env.sh
 udacity-fsnd-udaspicelatte.postman_collection.json
-node_modules/
+env.sh
 
 # OS generated files #
 ######################
