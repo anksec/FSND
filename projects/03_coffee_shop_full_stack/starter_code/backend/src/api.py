@@ -54,6 +54,7 @@ def get_drinks():
 '''
 # Gets detailed drink info 
 @app.route('/drinks-detail', methods=['GET'])
+@requires_auth('get:drinks-detail')
 def get_drinks_detail():
     selection = Drink.query.order_by(Drink.id).all()
     drinks = [drink.long() for drink in selection]
@@ -77,6 +78,7 @@ def get_drinks_detail():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks', methods=['POST'])
+@requires_auth('post:drinks')
 def post_drinks():
     body = request.get_json()
     try: 
@@ -108,7 +110,8 @@ def post_drinks():
 '''
 
 @app.route('/drinks/<int:id>', methods=['PATCH'])
-def patch_drinks:
+@requires_auth('patch:drinks')
+def patch_drinks(id):
     drink = Drink.query.get(id)
     if not drink:
         abort(404)
@@ -141,28 +144,21 @@ def patch_drinks:
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
-@app.route('/drinks/<int:id>', methods=['PATCH'])
-def patch_drinks:
+@app.route('/drinks/<int:id>', methods=['DELETE'])
+@requires_auth('delete:drinks')
+def delete_drinks(id):
     drink = Drink.query.get(id)
     if not drink:
         abort(404)
     
-    body = request.get_json()
-    try: 
-        title = body.get('title')
-        recipe = body.get('recipe')
-        if title:
-            drink.title = title
-        if recipe:
-            drink.recipe = json.dumps(recipe)
-        
-        drink.update()
+    try:
+        drink.delete()
     except:
-        abort(400)
+        abort(400) 
     
     return jsonify({
         'success' : True,
-        'drinks' : drink.long()
+        'drinks' : id 
     }) 
 
 
