@@ -1,5 +1,5 @@
 import json
-from flask import request, _request_ctx_stack
+from flask import request, _request_ctx_stack, abort
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
@@ -7,7 +7,7 @@ from urllib.request import urlopen
 
 AUTH0_DOMAIN = 'coffee-shop-ank.us.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'coffee-api'
+API_AUDIENCE = 'https://coffee-api/'
 
 ## AuthError Exception
 '''
@@ -117,7 +117,6 @@ def verify_decode_jwt(token):
                 audience=API_AUDIENCE,
                 issuer='https://' + AUTH0_DOMAIN + '/'
             )
-
             return payload
 
         except jwt.ExpiredSignatureError:

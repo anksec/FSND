@@ -191,7 +191,7 @@ def create_app(test_config=None):
     })
       
 
-  # Error handlers for 400, 404, 405 & 422
+  # Error handlers for 400, 401, 404, & 422
   # Based on Section 3, Lesson 3 - Flask Error Handling 
   @app.errorhandler(404)    
   def not_found(error):
@@ -211,5 +211,8 @@ def create_app(test_config=None):
   def bad_request(error):
     return jsonify({"success": False, "error": 400, "message": "bad request"}), 400
       
-    
+  @app.errorhandler(401)  
+  def unauthorized_client(error):
+    return jsonify({"success": False, "error": 401, "message": "unauthorized client"}), 401
+  
   return app
