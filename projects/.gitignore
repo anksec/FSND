@@ -3,6 +3,7 @@ __pycache__
 venv
 node_modules/
 env.sh
+udacity-fsnd-udaspicelatte.postman_collection.json
 
 # OS generated files #
 ######################
