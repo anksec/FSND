@@ -14,7 +14,7 @@ def create_app(test_config=None):
   app = Flask(__name__)
   app.url_map.strict_slashes = False
   setup_db(app)
-  CORS(app)
+  #CORS(app)
  
    
   db_drop_and_create_all()
@@ -22,7 +22,7 @@ def create_app(test_config=None):
   print([actor.format() for actor in Actor.query.order_by(Actor.id).all()])
   
   @app.route('/movies/', methods=['GET'])
-  #@requires_auth('view:movies')
+  #@requires_auth('get:movies')
   def get_movies():
     print("Attempting to get movies")
     selection = Movie.query.order_by(Movie.id).all()
@@ -38,7 +38,6 @@ def create_app(test_config=None):
 
     
   @app.route('/actors', methods=['GET'])
-  #@requires_auth('view:actors')
   def get_actors():
     selection = Actor.query.order_by(Actor.id).all()
     
@@ -66,7 +65,7 @@ def create_app(test_config=None):
     })  
     
   @app.route('/movies/<int:id>', methods=['GET'])
-  #@requires_auth('view:movies')
+  #@requires_auth('get:movies')
   def show_movie(id):
     movie = Movie.query.get(id)
     
@@ -79,7 +78,7 @@ def create_app(test_config=None):
     })  
     
   @app.route('/actors/<int:id>', methods=['DELETE'])
-  #@requires_auth('delete:actor')
+  #@requires_auth('delete:actors')
   def delete_actor(id):
     actor = Actor.query.get(id)
     
@@ -98,7 +97,7 @@ def create_app(test_config=None):
 
     
   @app.route('/movies/<int:id>', methods=['DELETE'])
-  #@requires_auth('delete:movie')
+  #@requires_auth('delete:movies')
   def delete_movie(id):
     movie = Movie.query.get(id)
     
@@ -116,7 +115,7 @@ def create_app(test_config=None):
     })
     
   @app.route('/actors/<int:id>', methods=['POST'])
-  #@requires_auth('add:actor')
+  #@requires_auth('add:actors')
   def add_actor(id):
     body = request.get_json()
     try:
@@ -137,7 +136,7 @@ def create_app(test_config=None):
     }) 
        
   @app.route('/movies/<int:id>', methods=['POST'])
-  #@requires_auth('add:movie')
+  #@requires_auth('add:movies')
   def add_movie(id):
     body = request.get_json()
     try:
@@ -157,7 +156,7 @@ def create_app(test_config=None):
     })
     
   @app.route('/actors/<int:id>', methods=['PATCH'])
-  #@requires_auth('update:actor')
+  #@requires_auth('update:actors')
   def update_actor(id):
     actor = Actor.query.get(id)
     
@@ -188,7 +187,7 @@ def create_app(test_config=None):
     })     
     
   @app.route('/movies/<int:id>', methods=['PATCH'])
-  #@requires_auth('update:movie')
+  #@requires_auth('update:movies')
   def update_movie(id):
     movie = Movie.query.get(id)
     
