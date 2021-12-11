@@ -1,28 +1,25 @@
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, jsonify, abort
+from sqlalchemy import exc
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import json
 
-#import database.models
-#import auth.auth
-from database.models import db_drop_and_create_all, setup_db, Movie, Actor
-from auth.auth import AuthError, requires_auth
+from .database.models import setup_db, db_drop_and_create_all, Actor, Movie 
+from .auth.auth import AuthError, requires_auth
 
-def create_app(test_config=None):
-  # create and configure the app
+def create_app(test_cinfig=None):
   app = Flask(__name__)
-  app.url_map.strict_slashes = False
-  
-  #CORS(app)
-  cors=CORS(app, resources={r"/": {"origins": "*"}})
-  #cors = CORS(app)
- 
   setup_db(app)
-   
-  #db_drop_and_create_all()
-  
-  #print([actor.format() for actor in Actor.query.order_by(Actor.id).all()])
+  CORS(app)
+
+  '''
+  db_drop_and_create_all is for initial testing.  Comment out when application goes to production
+  '''
+  db_drop_and_create_all()
+
+# ROUTES
+
   @app.after_request
   def after_request(response):
     response.headers.add('Access-Control-Allow-Headers','Content-Type,Authorization,true')
@@ -31,9 +28,8 @@ def create_app(test_config=None):
 
 
   @app.route('/movies/', methods=['GET'])
-  #@requires_auth('get:movies')
+  #@requires_auth('view:movies')
   def get_movies():
-    print("Attempting to get movies")
     selection = Movie.query.order_by(Movie.id).all()
     movies = [movie.format() for movie in selection]
     
@@ -48,11 +44,13 @@ def create_app(test_config=None):
 
     
   @app.route('/actors', methods=['GET'])
-  def get_actors():
+  @requires_auth('view:actors')
+  def get_actors(payload):
+  
     selection = Actor.query.order_by(Actor.id).all()
-    
+  
     actors = [actor.format() for actor in selection]
-    
+  
     if len(actors) == 0:
       abort(404)
       
@@ -63,8 +61,8 @@ def create_app(test_config=None):
     })  
     
   @app.route('/actors/<int:id>', methods=['GET'])
-  #@requires_auth('get:actors')
-  def show_actor(id):
+  @requires_auth('view:actors')
+  def show_actor(payload,id):
     actor = Actor.query.get(id)
     
     if len(actor) == 0:
@@ -76,21 +74,21 @@ def create_app(test_config=None):
     })  
     
   @app.route('/movies/<int:id>', methods=['GET'])
-  #@requires_auth('get:movies')
-  def show_movie(id):
+  @requires_auth('view:movies')
+  def show_movie(payload,id):
     movie = Movie.query.get(id)
     
     if not movie: 
       abort(404)
- 
+
     return jsonify({
       'success' : True,
       'movie' : movie
     })  
     
   @app.route('/actors/<int:id>', methods=['DELETE'])
-  #@requires_auth('delete:actors')
-  def delete_actor(id):
+  @requires_auth('delete:actor')
+  def delete_actor(payload,id):
     actor = Actor.query.get(id)
     
     if not actor:
@@ -102,16 +100,16 @@ def create_app(test_config=None):
       abort(400)
    
     return jsonify({
-        'success' : True,
-        'delete' : id 
+      'success' : True,
+      'delete' : id 
     }) 
 
     
   @app.route('/movies/<int:id>', methods=['DELETE'])
-  #@requires_auth('delete:movies')
-  def delete_movie(id):
+  @requires_auth('delete:movie')
+  def delete_movie(payload,id):
     movie = Movie.query.get(id)
-    
+   
     if not movie:
       abort(404) 
       
@@ -121,13 +119,13 @@ def create_app(test_config=None):
       abort(400)
    
     return jsonify({
-        'success' : True,
-        'delete' : id 
+      'success' : True,
+      'delete' : id 
     })
     
   @app.route('/actors/<int:id>', methods=['POST'])
-  #@requires_auth('add:actors')
-  def add_actor(id):
+  @requires_auth('add:actor')
+  def add_actor(payload,id):
     body = request.get_json()
     try:
       name = body.get('name')
@@ -142,13 +140,13 @@ def create_app(test_config=None):
       abort(400)
       
     return jsonify({
-        'success' : True,
-        'actor' : [actor.format()]
+      'success' : True,
+      'actor' : [actor.format()]
     }) 
        
   @app.route('/movies/<int:id>', methods=['POST'])
-  #@requires_auth('add:movies')
-  def add_movie(id):
+  @requires_auth('add:movie')
+  def add_movie(payload,id):
     body = request.get_json()
     try:
       title = body.get('title')
@@ -162,13 +160,13 @@ def create_app(test_config=None):
       abort(400)
       
     return jsonify({
-        'success' : True,
-        'movie' : [movie.format()]
+      'success' : True,
+      'movie' : [movie.format()]
     })
     
   @app.route('/actors/<int:id>', methods=['PATCH'])
-  #@requires_auth('update:actors')
-  def update_actor(id):
+  @requires_auth('update:actor')
+  def update_actor(payload,id):
     actor = Actor.query.get(id)
     
     if not actor:
@@ -193,13 +191,13 @@ def create_app(test_config=None):
       abort(400)
       
     return jsonify({
-        'success' : True,
-        'actors' : [actor.format()]
+      'success' : True,
+      'actors' : [actor.format()]
     })     
     
   @app.route('/movies/<int:id>', methods=['PATCH'])
-  #@requires_auth('update:movies')
-  def update_movie(id):
+  @requires_auth('update:movie')
+  def update_movie(payload,id):
     movie = Movie.query.get(id)
     
     if not movie:
@@ -222,16 +220,49 @@ def create_app(test_config=None):
       abort(400)
       
     return jsonify({
-        'success' : True,
-        'actors' : [movie.format()]
-    }) 
+      'success' : True,
+      'actors' : [movie.format()]
+      }) 
+  @app.errorhandler(422)
+  def unprocessable(error):
+    return jsonify({
+      "success": False,
+      "error": 422,
+      "message": "unprocessable"
+      }), 422
+    
+  @app.errorhandler(404)    
+  def not_found(error):
+    return jsonify({
+      "success": False, 
+      "error": 404, 
+      "message": "resource not found"
+      }), 404
+    
+
+  @app.errorhandler(400)
+  def bad_request(error):
+    return jsonify({
+      "success": False, 
+      "error": 400, 
+      "message": "bad request"
+      }), 400
+
+# Based on Auth0 Auth Error example - https://auth0.com/docs/quickstart/backend/python/01-authorization
+# Class AuthError is in ./backend/src/auth/auth.py
+  @app.errorhandler(AuthError)
+  def auth_error(error):
+    response = jsonify(error.error)
+    response.status_code = error.status_code 
+    return response
 
   return app
 
-app = create_app()
 
 
-
+APP = create_app()  
 
 if __name__ == '__main__':
     APP.run(host='0.0.0.0', port=8080, debug=True)
+# Error Handling
+# Current supported codes - 400, 404, 422
