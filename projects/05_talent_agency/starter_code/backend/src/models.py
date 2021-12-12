@@ -4,12 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import json
 
-DB_HOST = os.getenv('DB_HOST')  
-DB_USER = os.getenv('DB_USER')  
-DB_PASSWORD = os.getenv('DB_PASSWORD')  
-DB_NAME = os.getenv('DB_NAME')  
-DB_PATH = 'postgresql://{}:{}@{}/{}'.format(DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
-
 db = SQLAlchemy()
 
 '''
@@ -17,7 +11,7 @@ setup_db(app)
     binds a flask application and a SQLAlchemy service
 '''
 
-def setup_db(app,database_path=DB_PATH):
+def setup_db(app,database_path):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRADBCK_MODIFICATIONS"] = False
     db.app = app
@@ -42,10 +36,24 @@ def db_drop_and_create_all():
         gender='Female',
     )
 
+    # actor2/movie2 are featured in the unit tests, data below is slightly incorrect on purpose
+    actor2 = Actor(
+        name='Drew Barrymore',
+        age=45,
+        gender='Female',
+    )
+    movie2 = Movie(
+        title='The Wedding Singer',
+        release_date='1998-02-14'
+    )
+
     actor.movies.append(movie)
+    actor2.movies.append(movie2)
 
     actor.insert()
     movie.insert()
+    actor2.insert()
+    movie2.insert()
 
 
 class Actor(db.Model):
