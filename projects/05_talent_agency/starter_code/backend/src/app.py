@@ -22,7 +22,7 @@ def create_app(test_config=None):
 
   app = Flask(__name__)
   setup_db(app, DB_PATH)
-  CORS(app)
+  CORS(app, resources={"*":{"origins":"*"}})
 
   '''
   db_drop_and_create_all is for initial testing.  Comment out when application goes to production
@@ -35,6 +35,7 @@ def create_app(test_config=None):
   def after_request(response):
     response.headers.add('Access-Control-Allow-Headers','Content-Type,Authorization,true')
     response.headers.add('Access-Control-Allow-Methods','GET,PATCH,POST,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Origin','*')
     return response 
 
 

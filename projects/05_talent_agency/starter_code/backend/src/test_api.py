@@ -7,11 +7,10 @@ import base64
 from models import setup_db, db_drop_and_create_all, Actor, Movie 
 from auth import AuthError, requires_auth
 from app import create_app
-full_token = 'bearer ' + 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Il9SVEhYeDhhYjlkSTBCRjZCQUdVbCJ9.eyJpc3MiOiJodHRwczovL2Nhc3RpbmctYWdlbmN5LWFuay51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjFiNTMyYjBjNWEwOTgwMDZiZmU4MzA4IiwiYXVkIjoiaHR0cHM6Ly9jYXN0aW5nLWFwaS8iLCJpYXQiOjE2Mzk0ODY5MTIsImV4cCI6MTYzOTQ5NDExMiwiYXpwIjoiUDQ0UnRMSVhsZU1CMjFlcUpaR3plaU1lVWZZUm5yNU0iLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImFkZDphY3RvciIsImFkZDptb3ZpZSIsImRlbGV0ZTphY3RvciIsImRlbGV0ZTptb3ZpZSIsImdldDphY3RvcnMiLCJnZXQ6bW92aWVzIiwidXBkYXRlOmFjdG9yIiwidXBkYXRlOm1vdmllIiwidmlldzphY3RvcnMiLCJ2aWV3Om1vdmllcyJdfQ.vQ7RRk7aUtU55crJOwWHaitLogBCt9gmuVJ3tppyf8JQeyc8Uzy6sIxb_a8QYf64eVdz9G3HALYgh05AXVY3MRIZmyqX205ifJiUDLBRRXchPMPlKr-mDZLM4WGOslvWQcjviKbWO8QJqpxo7c05vJPzvXfVbi2_kPqQTY1EksEyJ9Z4qYepQhVIJjdSDEqTBO7qHAnxvB_WYDgtjPnB44g2ULZspDPZZMfgzK6lC2u1Po-Eij9tcGqgLtMchgaQGAyaWsqu_nG0ern-8Yqq05SLSh4cVOhHjd_bO8z08EDqxswY5K55M082opyc8DSuEVNrDfkznM0mLxtsG5E33Q'
-#producer_token =  'bearer ' + str(os.getenv('executive_producer_token'))
-#director_token =  'bearer ' + str(os.getenv('casting_director_token'))
-#assistant_token =  'bearer ' + str(os.getenv('casting_assistant_token'))
-#print("Assistant_token", assistant_token)
+#producer_token = 'bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Il9SVEhYeDhhYjlkSTBCRjZCQUdVbCJ9.eyJpc3MiOiJodHRwczovL2Nhc3RpbmctYWdlbmN5LWFuay51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjFiNTU4NjNmNjRkNGEwMDcyYWQ5OWQ0IiwiYXVkIjoiaHR0cHM6Ly9jYXN0aW5nLWFwaS8iLCJpYXQiOjE2Mzk0OTM5NjksImV4cCI6MTYzOTUwMTE2OSwiYXpwIjoiUDQ0UnRMSVhsZU1CMjFlcUpaR3plaU1lVWZZUm5yNU0iLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImdldDphY3RvcnMiLCJnZXQ6bW92aWVzIiwidmlldzphY3RvcnMiLCJ2aWV3Om1vdmllcyJdfQ.dnGISf81noWHeu0OG2OygkFp9Gd-W5ssq6_tiNQUX9myVx1LYTJx_aT74U4yWPgn3bAe3IPQ0xg39oZNfKsfSlfrtKypmCq25e74fxKxAIYXy4dbdKbQ2ZhS7vDqq4z9E0gBfm5m6lY030edw-UdlGYb_p-f1uHtNGk-nnT7l7Cu9YqatYq4lrRaYehxNIW3LlioJpMK5JLznVcKaYYer6poxUt3bxdQDYQ0FROnPDafqSNNv_HvW8SRRkpIRSJu136qIgwcMc7jsYgsyvjmZzNdNu-QDjB7cGa-9nHlOYkcHK9rM9-L3O5lwfI0KbxNeMMwQDwz7IcLcVFtPdPHHQ' 
+producer_token =  str(os.getenv('executive_producer_token'))
+#director_token = str(os.getenv('casting_director_token'))
+assistant_token =  str(os.getenv('casting_assistant_token'))
 #full_token =  'bearer ' + str(os.getenv('full_access_token'))
 
 class CastingTestCase(unittest.TestCase):
@@ -21,16 +20,6 @@ class CastingTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app("Test")
         self.client = self.app.test_client
-        # Shouldn't need this as the api sets up the database
-        #self.database_path = DB_PATH 
-        #setup_db(self.app, self.database_path)
-
-        # binds the app to the current context
-        #with self.app.app_context():
-        #    self.db = SQLAlchemy()
-        #    self.db.init_app(self.app)
-            # create all tables
-        #    self.db.create_all()
     
     def tearDown(self):
         """Executed after reach test"""
@@ -39,7 +28,7 @@ class CastingTestCase(unittest.TestCase):
     # Test cases based on Section 3, Lesson 4 - API Testing and
     # expected behavior of the trivia API
     def test_get_movies(self):
-        response = self.client().get("/movies", headers={'Authorization' : full_token})
+        response = self.client().get("/movies", headers={'Authorization' : assistant_token})
         data = json.loads(response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["success"], True)
@@ -47,11 +36,8 @@ class CastingTestCase(unittest.TestCase):
         print("\nPassed GET movies test with permissions of Casting Assistant")
     
     def test_get_actors(self):
-        response = self.client().get("/actors", headers={'Authorization' : full_token})
-        print("Response is:", response)
+        response = self.client().get("/actors", headers={'Authorization' : assistant_token})
         data = json.loads(response.data)
-        print("Printing output of GET actors test")
-        print(data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data["success"], True)
         self.assertTrue(data["actors"])
