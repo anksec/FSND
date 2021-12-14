@@ -95,13 +95,20 @@ class Actor(db.Model):
   
 class Movie(db.Model):
   __tablename__ = 'Movie'
-  id = db.Column(db.Integer, primary_key=True)
+  id = db.Column('id', db.Integer, primary_key=True)
   title = db.Column(db.String)
   release_date = db.Column(db.Date)
  
   def __init__(self, title, release_date):
     self.title = title
     self.release_date = release_date
+
+  def get(self, id):
+    print("testing")
+    print(db.session.query().get(id))
+    self.title = db.session.query().get(id).title
+    self.release_template = db.session.query().get(id).release_date
+    print("Self is",self)
     
   def insert(self):
     db.session.add(self)

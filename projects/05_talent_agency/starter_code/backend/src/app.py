@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import json
 
-from models import setup_db, db_drop_and_create_all, Actor, Movie 
+from models import db,setup_db, db_drop_and_create_all, Actor, Movie 
 from auth import AuthError, requires_auth
 
 def create_app(test_config=None):
@@ -72,32 +72,6 @@ def create_app(test_config=None):
       'actors' : actors
     })  
     
-  @app.route('/actors/<int:id>', methods=['GET'])
-  @requires_auth('get:actors')
-  def show_actor(payload,id):
-    actor = Actor.query.get(id)
-    
-    if len(actor) == 0:
-      abort(404)
- 
-    return jsonify({
-      'success' : True,
-      'actor' : actor.format()
-    })  
-    
-  @app.route('/movies/<int:id>', methods=['GET'])
-  @requires_auth('get:movies')
-  def show_movie(payload,id):
-    movie = Movie.query.get(id)
-    
-    if not movie: 
-      abort(404)
-
-    return jsonify({
-      'success' : True,
-      'movie' : movie
-    })  
-    
   @app.route('/actors/<int:id>', methods=['DELETE'])
   @requires_auth('delete:actor')
   def delete_actor(payload,id):
@@ -137,7 +111,7 @@ def create_app(test_config=None):
     
   @app.route('/actors', methods=['POST'])
   @requires_auth('add:actor')
-  def add_actor(payload,id):
+  def add_actor(payload):
     body = request.get_json()
     try:
       name = body.get('name')
@@ -158,14 +132,14 @@ def create_app(test_config=None):
        
   @app.route('/movies', methods=['POST'])
   @requires_auth('add:movie')
-  def add_movie(payload,id):
+  def add_movie(payload):
     body = request.get_json()
     try:
       title = body.get('title')
-      release = body.get('release')
+      release_date = body.get('release_date')
       #actors = body.get('actors')
       
-      movie = Movie(title=title, release=release)
+      movie = Movie(title=title, release_date=release_date)
       movie.insert()
    
     except:
@@ -233,7 +207,7 @@ def create_app(test_config=None):
       
     return jsonify({
       'success' : True,
-      'actors' : [movie.format()]
+      'movie' : [movie.format()]
       }) 
     
   @app.errorhandler(404)    
@@ -268,6 +242,14 @@ def create_app(test_config=None):
       "error": 401, 
       "message": "unauthorized"
       }), 401
+
+  @app.errorhandler(422)
+  def unprocessable(error):
+    return jsonify({
+      'success': False,
+      'error': 422,
+      'message': 'Unprocessable'
+    }), 422
 
 
 

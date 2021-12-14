@@ -5,9 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import json
 
-from models import setup_db, db_drop_and_create_all, Actor, Movie 
+from models import db,setup_db, db_drop_and_create_all, Actor, Movie 
 from auth import AuthError, requires_auth
-
 
 def create_app(test_config=None):
   DB_HOST = os.getenv('DB_HOST')  
@@ -15,18 +14,15 @@ def create_app(test_config=None):
   DB_PASSWORD = os.getenv('DB_PASSWORD')  
   DB_NAME = os.getenv('DB_NAME')  
 
-  print("Test config: ", test_config)
   if test_config == None:
     DB_NAME = os.getenv('DB_NAME')  
-    print("not running test config")
   else:
     DB_NAME = os.getenv('TEST_DB_NAME')
   DB_PATH = 'postgresql://{}:{}@{}/{}'.format(DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
-  print("DB PATH is:", DB_PATH)
 
   app = Flask(__name__)
   setup_db(app, DB_PATH)
-  CORS(app)
+  CORS(app, resources={"*":{"origins":"*"}})
 
   '''
   db_drop_and_create_all is for initial testing.  Comment out when application goes to production
@@ -39,12 +35,13 @@ def create_app(test_config=None):
   def after_request(response):
     response.headers.add('Access-Control-Allow-Headers','Content-Type,Authorization,true')
     response.headers.add('Access-Control-Allow-Methods','GET,PATCH,POST,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Origin','*')
     return response 
 
 
-  @app.route('/movies/', methods=['GET'])
-  #@requires_auth('view:movies')
-  def get_movies():
+  @app.route('/movies', methods=['GET'])
+  @requires_auth('get:movies')
+  def get_movies(payload):
     selection = Movie.query.order_by(Movie.id).all()
     movies = [movie.format() for movie in selection]
     
@@ -59,7 +56,7 @@ def create_app(test_config=None):
 
     
   @app.route('/actors', methods=['GET'])
-  @requires_auth('view:actors')
+  @requires_auth('get:actors')
   def get_actors(payload):
   
     selection = Actor.query.order_by(Actor.id).all()
@@ -76,9 +73,14 @@ def create_app(test_config=None):
     })  
     
   @app.route('/actors/<int:id>', methods=['GET'])
-  @requires_auth('view:actors')
+  @requires_auth('get:actors')
   def show_actor(payload,id):
-    actor = Actor.query.get(id)
+    try:  
+      actor = Actor.get(id)
+      print("Actor is", actor)
+      #actor = Actor.query.get(id)
+    except Exception:
+      abort(422)
     
     if len(actor) == 0:
       abort(404)
@@ -88,17 +90,24 @@ def create_app(test_config=None):
       'actor' : actor.format()
     })  
     
-  @app.route('/movies/<int:id>', methods=['GET'])
-  @requires_auth('view:movies')
-  def show_movie(payload,id):
-    movie = Movie.query.get(id)
+  @app.route('/movies/<int:movie_id>', methods=['GET'])
+  @requires_auth('get:movies')
+  def show_movie(payload,movie_id):
+    try:  
+      selection = Movie.query.filter_by(id=id).first()
+      print("Title is", selection.title)
+      movie = [movie.format() for movie in selection]
+
+      print("movie is", movie)
+    except Exception:
+      abort(422)
     
     if not movie: 
       abort(404)
 
     return jsonify({
       'success' : True,
-      'movie' : movie
+      'movie' : [movie]
     })  
     
   @app.route('/actors/<int:id>', methods=['DELETE'])
@@ -140,7 +149,7 @@ def create_app(test_config=None):
     
   @app.route('/actors', methods=['POST'])
   @requires_auth('add:actor')
-  def add_actor(payload,id):
+  def add_actor(payload):
     body = request.get_json()
     try:
       name = body.get('name')
@@ -161,8 +170,9 @@ def create_app(test_config=None):
        
   @app.route('/movies', methods=['POST'])
   @requires_auth('add:movie')
-  def add_movie(payload,id):
+  def add_movie(payload):
     body = request.get_json()
+    print("Body is",body)
     try:
       title = body.get('title')
       release = body.get('release')
@@ -176,7 +186,7 @@ def create_app(test_config=None):
       
     return jsonify({
       'success' : True,
-      'movie' : [movie.format()]
+      'movie' : movie.format()
     })
     
   @app.route('/actors/<int:id>', methods=['PATCH'])
@@ -264,6 +274,22 @@ def create_app(test_config=None):
       "message": "invalid permissions"
       }), 403
 
+  @app.errorhandler(401)
+  def bad_request(error):
+    return jsonify({
+      "success": False, 
+      "error": 401, 
+      "message": "unauthorized"
+      }), 401
+
+  @app.errorhandler(422)
+  def unprocessable(error):
+    return jsonify({
+      'success': False,
+      'error': 422,
+      'message': 'Unprocessable'
+    }), 422
+
 
 
 # Based on Auth0 Auth Error example - https://auth0.com/docs/quickstart/backend/python/01-authorization
@@ -276,10 +302,3 @@ def create_app(test_config=None):
 
   return app
 
-
-APP = create_app()  
-
-if __name__ == '__main__':
-    APP.run(host='0.0.0.0', port=8080, debug=True)
-# Error Handling
-# Current supported codes - 400, 404, 422
