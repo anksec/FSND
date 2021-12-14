@@ -40,7 +40,7 @@ def create_app(test_config=None):
 
   @app.route('/movies', methods=['GET'])
   @requires_auth('view:movies')
-  def get_movies():
+  def get_movies(payload):
     selection = Movie.query.order_by(Movie.id).all()
     movies = [movie.format() for movie in selection]
     
@@ -259,6 +259,14 @@ def create_app(test_config=None):
       "error": 403, 
       "message": "invalid permissions"
       }), 403
+
+  @app.errorhandler(401)
+  def bad_request(error):
+    return jsonify({
+      "success": False, 
+      "error": 401, 
+      "message": "unauthorized"
+      }), 401
 
 
 

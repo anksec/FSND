@@ -1,4 +1,4 @@
-# Coffee Shop Backend
+# Casting Agency Backend
 
 ## Getting Started
 
@@ -37,7 +37,7 @@ From within the `./src` directory first ensure you are working using your create
 Each time you open a new terminal session, run:
 
 ```bash
-export FLASK_APP=api.py;
+source env.sh
 ```
 
 To run the server, execute:
@@ -60,15 +60,19 @@ The `--reload` flag will detect file changes and restart the server automaticall
      - Enable RBAC
      - Enable Add Permissions in the Access Token
 5. Create new API permissions:
-   - `get:drinks`
-   - `get:drinks-detail`
-   - `post:drinks`
-   - `patch:drinks`
-   - `delete:drinks`
+   - `get:movies`
+   - `get:actors`
+   - `update:movies`
+   - `update:actors`
+   - `delete:movies`
+   - `delete:actors`
 6. Create new roles for:
-   - Barista
-     - can `get:drinks-detail`
-   - Manager
+   - Casting Assistant
+     - can `get:movies`
+     - can `get:actors`
+   - Casting Director
+     - <fill in later>
+   - Executive Producer
      - can perform all actions
 7. Test your endpoints with [Postman](https://getpostman.com).
    - Register 2 users - assign the Barista role to one and Manager role to the other.

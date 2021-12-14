@@ -1,0 +1,46 @@
+
+// api url
+const api_movies = 
+      "http://127.0.0.1:5000/movies";
+  
+// Defining async function
+async function getapi(url) {
+    
+    // Storing response
+    const response = await fetch(url);
+    
+    // Storing data in form of JSON
+    var data = await response.json();
+    console.log(data);
+    if (response) {
+        hideloader();
+    }
+    show(data);
+}
+// Calling that async function
+getapi(api_movies);
+  
+// Function to hide the loader
+function hideloader() {
+    document.getElementById('loading').style.display = 'none';
+}
+// Function to define innerHTML for HTML table
+function show(data) {
+    let tab = 
+        `<tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Release Date</th>
+         </tr>`;
+    
+    // Loop to access all rows 
+    for (let r of data.list) {
+        tab += `<tr> 
+    <td>${r.id} </td>
+    <td>${r.title}</td>
+    <td>${r.release_date}</td> 
+</tr>`;
+    }
+    // Setting innerHTML as tab variable
+    document.getElementById("movies").innerHTML = tab;
+}
