@@ -5,9 +5,9 @@ from jose import jwt
 from urllib.request import urlopen
 
 
-AUTH0_DOMAIN = 'casting-ank.us.auth0.com'
+AUTH0_DOMAIN = 'casting-agency-ank.us.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'casting'
+API_AUDIENCE = 'https://casting-api/'
 
 ## AuthError Exception
 '''
@@ -98,7 +98,6 @@ def verify_decode_jwt(token):
             'code': 'invalid_header',
             'description': 'Authorization malformed.'
         }, 401)
-
     for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
             rsa_key = {

@@ -39,7 +39,7 @@ def create_app(test_config=None):
 
 
   @app.route('/movies', methods=['GET'])
-  @requires_auth('view:movies')
+  @requires_auth('get:movies')
   def get_movies(payload):
     selection = Movie.query.order_by(Movie.id).all()
     movies = [movie.format() for movie in selection]
@@ -55,7 +55,7 @@ def create_app(test_config=None):
 
     
   @app.route('/actors', methods=['GET'])
-  @requires_auth('view:actors')
+  @requires_auth('get:actors')
   def get_actors(payload):
   
     selection = Actor.query.order_by(Actor.id).all()
@@ -72,7 +72,7 @@ def create_app(test_config=None):
     })  
     
   @app.route('/actors/<int:id>', methods=['GET'])
-  @requires_auth('view:actors')
+  @requires_auth('get:actors')
   def show_actor(payload,id):
     actor = Actor.query.get(id)
     
@@ -85,7 +85,7 @@ def create_app(test_config=None):
     })  
     
   @app.route('/movies/<int:id>', methods=['GET'])
-  @requires_auth('view:movies')
+  @requires_auth('get:movies')
   def show_movie(payload,id):
     movie = Movie.query.get(id)
     

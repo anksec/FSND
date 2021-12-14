@@ -110,6 +110,16 @@ def verify_decode_jwt(token):
             }
     if rsa_key:
         try:
+            print("token", token)
+            print("\n")
+            print("rsa key",rsa_key)
+            print("\n")
+            print("Algorithms",ALGORITHMS)
+            print("\n")
+            print("API Audience",API_AUDIENCE)
+            print("\n")
+            print("issuer",AUTH0_DOMAIN)
+            print("\n")
             payload = jwt.decode(
                 token,
                 rsa_key,
