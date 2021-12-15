@@ -1,4 +1,5 @@
 import os
+import re
 from sqlalchemy import Column, String, Integer
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -14,8 +15,10 @@ setup_db(app)
 '''
 
 def setup_db(app,database_path=DB_URL):
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_path
+    if database_path.startswith("postgres://"):
+      database_path = database_path.replace("postgres://", "postgresql://", 1)
     app.config["SQLALCHEMY_TRADBCK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     db.app = app
     db.init_app(app)
     db.create_all()

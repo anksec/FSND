@@ -64,6 +64,8 @@ This will install all of the required packages we selected within the `requireme
 ### Running on Heroku
 The `setup.sh` config file specifies the database name among other things.  `Procfile` and `setup.sh` will need to be configured to run on Heroku.
 
+API is currently hosted at: `https://casting-agency-ank.herokuapp.com`
+
 ### Database setup
 The database utilizes Postgresql.  The database will need to be created before the server can be used.  In testing and development it is recommended to drop the previous table and re-create.
 
