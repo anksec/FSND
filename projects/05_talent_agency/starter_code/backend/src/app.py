@@ -6,30 +6,21 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 import json
 
-from models import db,setup_db, db_drop_and_create_all, Actor, Movie 
+from models import db,setup_db, db_drop_and_create_all,db_populate, Actor, Movie 
 from auth import AuthError, requires_auth
 
 def create_app(test_config=None):
-  DB_HOST = os.getenv('DB_HOST')  
-  DB_USER = os.getenv('DB_USER')  
-  DB_PASSWORD = os.getenv('DB_PASSWORD')  
-  DB_NAME = os.getenv('DB_NAME')  
-
-  if test_config == None:
-    DB_NAME = os.getenv('DB_NAME')  
-  else:
-    DB_NAME = os.getenv('TEST_DB_NAME')
-  DB_PATH = 'postgresql://{}:{}@{}/{}'.format(DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
-
   app = Flask(__name__)
-  migrate= Migrate(app, db)
-  setup_db(app, DB_PATH)
+
+
+  if test_config == "Test":
+    setup_db(app, database_path=os.getenv('TEST_DATABASE_URL'))
+  else:
+    setup_db(app)
   CORS(app, resources={"*":{"origins":"*"}})
 
-  '''
-  db_drop_and_create_all is for initial testing.  Comment out when application goes to production
-  '''
-  db_drop_and_create_all()
+  # For testing and development, this line should be commented out for Production
+  db_populate()
 
 # ROUTES
 
@@ -60,9 +51,7 @@ def create_app(test_config=None):
   @app.route('/actors', methods=['GET'])
   @requires_auth('get:actors')
   def get_actors(payload):
-  
     selection = Actor.query.order_by(Actor.id).all()
-  
     actors = [actor.format() for actor in selection]
   
     if len(actors) == 0:
@@ -96,12 +85,16 @@ def create_app(test_config=None):
   @app.route('/movies/<int:id>', methods=['DELETE'])
   @requires_auth('delete:movie')
   def delete_movie(payload,id):
+    selection = Movie.query.order_by(Movie.id).all()
+    movies = [movie.format() for movie in selection]
+    print("Movie database", movies)
     movie = Movie.query.get(id)
-   
     if not movie:
+      print("There is no movie")
       abort(404) 
       
     try:
+      print("Trying to delete movie")
       movie.delete()
     except:
       abort(400)
@@ -270,6 +263,7 @@ def create_app(test_config=None):
     return response
 
   return app
+
 
 app = create_app()  
 if __name__ == '__main__':

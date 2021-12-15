@@ -4,7 +4,7 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 import base64
 
-from models import setup_db, db_drop_and_create_all, Actor, Movie 
+from models import db,setup_db, db_drop_and_create_all, db_populate, Actor, Movie 
 from auth import AuthError, requires_auth
 from app import create_app
 producer_token =  str(os.getenv('executive_producer_token'))
@@ -16,22 +16,23 @@ class CastingTestCase(unittest.TestCase):
 
     def setUp(self):
         """Define test variables and initialize app."""
-        self.app = create_app("Test")
+        self.app = create_app(test_config="Test")
         self.client = self.app.test_client
-        # Shouldn't need this as the api sets up the database
-        #self.database_path = DB_PATH 
-        #setup_db(self.app, self.database_path)
+        self.database_path = os.getenv('TEST_DATABASE_URL')
+        setup_db(self.app, self.database_path)
 
-        # binds the app to the current context
-        #with self.app.app_context():
-        #    self.db = SQLAlchemy()
-        #    self.db.init_app(self.app)
-            # create all tables
-        #    self.db.create_all()
+        with self.app.app_context():
+            self.db = SQLAlchemy()
+            self.db.init_app(self.app)
+            self.db.drop_all()
+            self.db.create_all()
+            #db_populate()
+        
     
     def tearDown(self):
-        """Executed after reach test"""
-        pass
+        db.session.remove()
+        db.drop_all()
+
    
     # Test cases based on Section 3, Lesson 4 - API Testing and
     # expected behavior of the trivia API
@@ -170,7 +171,7 @@ class CastingTestCase(unittest.TestCase):
         self.assertEqual(data["message"], "unauthorized")
         print("\nPassed 401 unauthorized ADD movie test with permissions of Casting Assistant")
     
-    def test_add_actor(self):
+    def test_401_add_actor(self):
         actor = {
             'name':'Selma Hayek',
             'age':55,

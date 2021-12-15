@@ -21,6 +21,8 @@ Casting Directory - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`,
 Executive Producer - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`, `add:movie`, `delete:movie`, `update:actor`, and `update:movie` 
 
 ## Users
+For production use, users would sign up at [https://auth0.com/](Auth0)
+
 As this is a Proof of Concept and has no sensitive data, 3 users have been created to test the application as the provided tokens may run out.  Use the following to authenticate to auth0 for the API.
 User:Pass
 `casting.assistant.ank@gmail.com:ILove2Assist!`  - Casting Assistant role
@@ -59,10 +61,22 @@ This will install all of the required packages we selected within the `requireme
 
 ## Running the server
 
-From within the `./src` directory first ensure you are working using your created virtual environment.
+### Running on Heroku
+The `setup.sh` config file specifies the database name among other things.  `Procfile` and `setup.sh` will need to be configured to run on Heroku.
 
-Each time you open a new terminal session, run:
+### Database setup
+The database utilizes Postgresql.  The database will need to be created before the server can be used.  In testing and development it is recommended to drop the previous table and re-create.
 
+To drop database:
+`dropdb agency`
+
+To create database:
+`createdb agency`
+
+### Note about running locally
+The server is setup to run on Heroku.  if you are running locally, you will need to edit the `env.sh` file and update the DATABASE_URL to be a local server.  
+
+### Server setup
 ```bash
 source env.sh
 source /path/to/pyenv/bin/activate
@@ -71,13 +85,15 @@ source /path/to/pyenv/bin/activate
 To run the server, execute:
 
 ```bash
-flask run --reload
+flask run
 ```
 
-The `--reload` flag will detect file changes and restart the server automatically.
-
 ## Testing the server
-The file "env.sh" has tokens to test the application.  If the tokens are expired, refresh them and update the file then run `source env.sh`.
+The file "source.sh" has tokens to test the application.  If the tokens are expired, refresh them and update the file then run `source source.sh`.
 
 To test the API:
-`python test_api.py`
+```bash
+dropdb agency_test
+createdb agency_test
+python test_api.py
+```
