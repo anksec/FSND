@@ -5,25 +5,25 @@ The Casting Agency API was built as a proof of concept to showcase knowledge lea
 ## API endpoints, associated Roles and Users
 
 ## API endpoints
-`get:actors` - Get list of actors
-`get:movies` - Get list of movies
-`add:actor` - Add actor 
-`delete:actor` - Delete actor
-`add:movie` - Add movie
-`delete:movie` - Delete movie
-`update:actor` - Update actor information
-`update:movie` - Update movie information
+`get:actors` - Get list of actors \
+`get:movies` - Get list of movies \
+`add:actor` - Add actor  \
+`delete:actor` - Delete actor \
+`add:movie` - Add movie \
+`delete:movie` - Delete movie \
+`update:actor` - Update actor information \
+`update:movie` - Update movie information \
 
 
 ## Roles
-Casting Assistant - Can `get:actors` and `get:movies`
-Casting Directory - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`, `update:actor`, and `update:movie` 
-Executive Producer - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`, `add:movie`, `delete:movie`, `update:actor`, and `update:movie` 
+Casting Assistant - Can `get:actors` and `get:movies`\
+Casting Directory - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`, `update:actor`, and `update:movie` \
+Executive Producer - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`, `add:movie`, `delete:movie`, `update:actor`, and `update:movie`\
 
 ## Users
-For production use, users would sign up at [https://auth0.com/](Auth0)
+For production use, users would sign up at [https://auth0.com/](Auth0) \
 
-As this is a Proof of Concept and has no sensitive data, 3 users have been created to test the application as the provided tokens may run out.  Use the following to authenticate to auth0 for the API.
+As this is a Proof of Concept and has no sensitive data, 3 users have been created to test the application as the provided tokens may run out.  Use the following to authenticate to auth0 for the API.\
 Credentials - User:Pass
 ```
 casting.assistant.ank@gmail.com:ILove2Assist!  - Casting Assistant role
