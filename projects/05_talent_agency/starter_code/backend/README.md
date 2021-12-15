@@ -1,6 +1,33 @@
-# Casting Agency Backend
+# Casting Agency API Backend
 
-## Getting Started
+The Casting Agency API was built as a proof of concept to showcase knowledge learned through the Udacity Full Stock Nanodegree.  The API is fully functional and has tests to showcase the different endpoints, errors and roles within the application.  The application has two primary functions: to keep track of actors and to keep track of movies.  Authentication to the application is handled by Auth0.
+
+## API endpoints, associated Roles and Users
+
+## API endpoints
+`get:actors` - Get list of actors
+`get:movies` - Get list of movies
+`add:actor` - Add actor 
+`delete:actor` - Delete actor
+`add:movie` - Add movie
+`delete:movie` - Delete movie
+`update:actor` - Update actor information
+`update:movie` - Update movie information
+
+
+## Roles
+Casting Assistant - Can `get:actors` and `get:movies`
+Casting Directory - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`, `update:actor`, and `update:movie` 
+Executive Producer - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`, `add:movie`, `delete:movie`, `update:actor`, and `update:movie` 
+
+## Users
+As this is a Proof of Concept and has no sensitive data, 3 users have been created to test the application as the provided tokens may run out.  Use the following to authenticate to auth0 for the API.
+User:Pass
+`casting.assistant.ank@gmail.com:ILove2Assist!`  - Casting Assistant role
+`casting.director.ank@gmail.com:I<32Direct4U!` - Casting Director role
+`executive.producer.ank@gmail.com:ElJefe4ever!` - Executive Producer role
+
+## Important things to know for installation
 
 ### Installing Dependencies
 
@@ -38,6 +65,7 @@ Each time you open a new terminal session, run:
 
 ```bash
 source env.sh
+source /path/to/pyenv/bin/activate
 ```
 
 To run the server, execute:
@@ -48,43 +76,8 @@ flask run --reload
 
 The `--reload` flag will detect file changes and restart the server automatically.
 
-## Tasks
+## Testing the server
+The file "env.sh" has tokens to test the application.  If the tokens are expired, refresh them and update the file then run `source env.sh`.
 
-### Setup Auth0
-
-1. Create a new Auth0 Account
-2. Select a unique tenant domain
-3. Create a new, single page web application
-4. Create a new API
-   - in API Settings:
-     - Enable RBAC
-     - Enable Add Permissions in the Access Token
-5. Create new API permissions:
-   - `get:movies`
-   - `get:actors`
-   - `update:movies`
-   - `update:actors`
-   - `delete:movies`
-   - `delete:actors`
-6. Create new roles for:
-   - Casting Assistant
-     - can `get:movies`
-     - can `get:actors`
-   - Casting Director
-     - <fill in later>
-   - Executive Producer
-     - can perform all actions
-7. Test your endpoints with [Postman](https://getpostman.com).
-   - Register 2 users - assign the Barista role to one and Manager role to the other.
-   - Sign into each account and make note of the JWT.
-   - Import the postman collection `./starter_code/backend/udacity-fsnd-udaspicelatte.postman_collection.json`
-   - Right-clicking the collection folder for barista and manager, navigate to the authorization tab, and including the JWT in the token field (you should have noted these JWTs).
-   - Run the collection and correct any errors.
-   - Export the collection overwriting the one we've included so that we have your proper JWTs during review!
-
-### Implement The Server
-
-There are `@TODO` comments throughout the `./backend/src`. We recommend tackling the files in order and from top to bottom:
-
-1. `./src/auth/auth.py`
-2. `./src/api.py`
+To test the API:
+`python test_api.py`

@@ -251,6 +251,12 @@ def create_app(test_config=None):
       'message': 'Unprocessable'
     }), 422
 
+# Catch errors from auth.py
+  @app.errorhandler(AuthError)
+  def handle_auth_error(ex):
+      response = jsonify(ex.error)
+      response.status_code = ex.status_code
+      return response
 
 
 # Based on Auth0 Auth Error example - https://auth0.com/docs/quickstart/backend/python/01-authorization

@@ -2,6 +2,7 @@ import os
 from sqlalchemy import Column, String, Integer
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+
 import json
 
 db = SQLAlchemy()
@@ -14,6 +15,7 @@ setup_db(app)
 def setup_db(app,database_path):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRADBCK_MODIFICATIONS"] = False
+    migrate = Migrate(app,db)
     db.app = app
     db.init_app(app)
 
