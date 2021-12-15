@@ -24,10 +24,12 @@ Executive Producer - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`
 For production use, users would sign up at [https://auth0.com/](Auth0)
 
 As this is a Proof of Concept and has no sensitive data, 3 users have been created to test the application as the provided tokens may run out.  Use the following to authenticate to auth0 for the API.
-User:Pass
-`casting.assistant.ank@gmail.com:ILove2Assist!`  - Casting Assistant role
-`casting.director.ank@gmail.com:I<32Direct4U!` - Casting Director role
-`executive.producer.ank@gmail.com:ElJefe4ever!` - Executive Producer role
+Credentials - User:Pass
+```
+casting.assistant.ank@gmail.com:ILove2Assist!  - Casting Assistant role
+casting.director.ank@gmail.com:I<32Direct4U! - Casting Director role
+executive.producer.ank@gmail.com:ElJefe4ever! - Executive Producer role
+```
 
 ## Important things to know for installation
 
