@@ -1,8 +1,9 @@
 import os
 from flask import Flask, request, jsonify, abort
-from sqlalchemy import exc
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc
 from flask_cors import CORS
+from flask_migrate import Migrate
 import json
 
 from models import db,setup_db, db_drop_and_create_all, Actor, Movie 
@@ -21,6 +22,7 @@ def create_app(test_config=None):
   DB_PATH = 'postgresql://{}:{}@{}/{}'.format(DB_USER, DB_PASSWORD, DB_HOST, DB_NAME)
 
   app = Flask(__name__)
+  migrate= Migrate(app, db)
   setup_db(app, DB_PATH)
   CORS(app, resources={"*":{"origins":"*"}})
 
