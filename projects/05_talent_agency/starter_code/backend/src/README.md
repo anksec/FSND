@@ -12,13 +12,12 @@ The Casting Agency API was built as a proof of concept to showcase knowledge lea
 `add:movie` - Add movie \
 `delete:movie` - Delete movie \
 `update:actor` - Update actor information \
-`update:movie` - Update movie information \
-
+`update:movie` - Update movie information 
 
 ## Roles
 Casting Assistant - Can `get:actors` and `get:movies`\
 Casting Directory - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`, `update:actor`, and `update:movie` \
-Executive Producer - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`, `add:movie`, `delete:movie`, `update:actor`, and `update:movie`\
+Executive Producer - Can `get:actors`, `get:movies`, `add:actor`, `delete:actor`, `add:movie`, `delete:movie`, `update:actor`, and `update:movie`
 
 ## Users
 For production use, users would sign up at [https://auth0.com/](Auth0) \
