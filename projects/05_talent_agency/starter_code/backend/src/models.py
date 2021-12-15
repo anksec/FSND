@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 
 import json
 
+DB_URL = os.getenv('DATABASE_URL')
 db = SQLAlchemy()
 
 '''
@@ -12,12 +13,13 @@ setup_db(app)
     binds a flask application and a SQLAlchemy service
 '''
 
-def setup_db(app,database_path):
+def setup_db(app,database_path=DB_URL):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRADBCK_MODIFICATIONS"] = False
-    migrate = Migrate(app,db)
     db.app = app
     db.init_app(app)
+    db.create_all()
+    #migrate = Migrate(app,db)
 
 #Many to Many relationship setup 
 movies_and_actors = db.Table('movies_and_actors',
@@ -25,9 +27,7 @@ movies_and_actors = db.Table('movies_and_actors',
     db.Column('movie_id', db.Integer, db.ForeignKey('Movie.id'), primary_key=True)
 )
 
-def db_drop_and_create_all():
-    db.drop_all()
-    db.create_all()
+def db_populate():
     movie = Movie(
         title='V for Vendetta',
         release_date='2006-03-17'
@@ -37,25 +37,29 @@ def db_drop_and_create_all():
         age=40,
         gender='Female',
     )
-
-    # actor2/movie2 are featured in the unit tests, data below is slightly incorrect on purpose
-    actor2 = Actor(
-        name='Drew Barrymore',
-        age=45,
-        gender='Female',
-    )
-    movie2 = Movie(
-        title='The Wedding Singer',
-        release_date='1998-02-14'
-    )
-
     actor.movies.append(movie)
-    actor2.movies.append(movie2)
-
     actor.insert()
     movie.insert()
+
+    #For test purposes, the below is incorrect on purpose
+    actor2 = Actor(
+      name='Drew Barrymore',
+      age=45,
+      gender='Female',
+    )
+    movie2 = Movie(
+      title='The Wedding Singer',
+      release_date='1998-02-14'
+    )
+
+    actor2.movies.append(movie2)
+
     actor2.insert()
     movie2.insert()
+
+def db_drop_and_create_all():
+    db.drop_all()
+    db.create_all()
 
 
 class Actor(db.Model):
